@@ -9,7 +9,7 @@ const BasicCard = ({ title, fields, width, height, topPadding }) => {
     const topPaddingStyle = {
         paddingTop: topPadding ? `${topPadding * 0.25}rem` : '0'
     }
-    console.log(topPaddingStyle);
+
     return (
         // <div className={`${topPaddingStyle}`}>
         <div style={topPaddingStyle}>

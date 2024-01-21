@@ -1,16 +1,24 @@
 import React, { useState } from 'react';
 import { Formik, Form, Field } from 'formik';
+import axios from '../../axiosConfig.js';
 
-const AddWalletModal = ({ isOpen, onClose, onAdd }) => {
-    const [walletAddress, setWalletAddress ] = useState('');
+const AddWalletModal = ({ isOpen, onClose }) => {
+    const [ errorMessage, setErrorMessage ] = useState('');
 
-    // const handleSubmit = (event) => {
-    //     event.preventDefault();
-    //     onAdd(walletAddress);
-    //     onClose();
-    // }
-
-
+    const addNewWallet = async (walletAddress) => {
+        try {
+            const response = await axios.post('/wallets/addWallet', { walletAddress:walletAddress });
+            onClose();
+            return response.data;
+        } catch (error) { 
+            if (error.response && error.response.data) {
+                setErrorMessage(error.response.data.msg);
+            } else {
+                setErrorMessage('An error occured while adding the wallet.');
+            }
+        }
+    };
+    
     if(!isOpen) return null;
 
     return (
@@ -18,10 +26,10 @@ const AddWalletModal = ({ isOpen, onClose, onAdd }) => {
             <div className="bg-white p-4 rounded-lg shadow-lg">
                 <Formik
                     initialValues={{ walletAddress: '' }}
-                    onSubmit={(values, { resetForm }) => {
-                        onAdd(values.walletAddress);
+                    onSubmit={async (values, { setSubmitting, resetForm }) => {
+                        addNewWallet(values.walletAddress);
+                        setSubmitting(false);
                         resetForm();
-                        onClose();
                     }}
                 >
                     <Form>
@@ -35,6 +43,7 @@ const AddWalletModal = ({ isOpen, onClose, onAdd }) => {
                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             />
                         </div>
+                        {errorMessage && <p className="pb-4 text-red-500 font-bold text-lg italic">{errorMessage}</p>}
                         <div className="flex justify-end">
                             <button 
                                 type="submit"
